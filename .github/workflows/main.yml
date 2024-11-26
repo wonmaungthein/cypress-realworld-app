@@ -9,14 +9,14 @@ jobs:
   install:
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
       options: --user 1001
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cypress install
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           runTests: false
       # report machine parameters
@@ -29,39 +29,7 @@ jobs:
       - run: yarn build:ci
 
       - name: Save build folder
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
-  install-windows:
-    runs-on: windows-2022
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          # The default install for the job is node 18+
-          # which has some compatibility issues with openSSL inside this windows job.
-          # Node 18 updated with OpenSSL provider which causes this compatibility issue
-          # downgrading node to v16 to use the openssl-legacy-provider by default to prevent this issue
-          node-version: '16'
-
-      - name: Cypress install
-        uses: cypress-io/github-action@v5
-        with:
-          runTests: false
-      # report machine parameters
-      - run: yarn cypress info
-      - run: node -p 'os.cpus()'
-      - run: yarn types
-      - run: yarn lint
-      - run: yarn test:unit:ci
-      - run: yarn build:ci
-
-      - name: Save build folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           if-no-files-found: error
@@ -71,7 +39,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
       options: --user 1001
     needs: install
     strategy:
@@ -85,16 +53,13 @@ jobs:
         containers: [1, 2, 3, 4, 5]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the build folders
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build
-
-      - name: Cypress info
-        run: npx cypress info
 
       - name: Node info
         run: node -v
@@ -103,8 +68,9 @@ jobs:
         run: ls /__e
 
       - name: "UI Tests - Chrome"
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
+          build: yarn cypress info
           start: yarn start:ci
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
@@ -113,7 +79,7 @@ jobs:
           parallel: true
           group: "UI - Chrome"
           spec: cypress/tests/ui/*
-          config-file: cypress.config.js
+          config-file: cypress.config.ts
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -126,7 +92,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
       options: --user 1001
     needs: install
     strategy:
@@ -140,18 +106,18 @@ jobs:
         containers: [1, 2, 3, 4, 5]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the build folders
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build
 
       - name: "UI Tests - Chrome - Mobile"
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
-          config: "viewportWidth=375,viewportHeight=667"
+          config: '{"e2e":{"viewportWidth":375,"viewportHeight":667}}'
           start: yarn start:ci
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
@@ -160,7 +126,7 @@ jobs:
           parallel: true
           group: "UI - Chrome - Mobile"
           spec: cypress/tests/ui/*
-          config-file: cypress.config.js
+          config-file: cypress.config.ts
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -172,7 +138,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
       options: --user 1001
     needs: install
     strategy:
@@ -186,16 +152,16 @@ jobs:
         containers: [1, 2, 3, 4, 5]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the build folders
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build
 
       - name: "UI Tests - Firefox"
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           start: yarn start:ci
           wait-on: "http://localhost:3000"
@@ -205,7 +171,7 @@ jobs:
           parallel: true
           group: "UI - Firefox"
           spec: cypress/tests/ui/*
-          config-file: cypress.config.js
+          config-file: cypress.config.ts
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -217,7 +183,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node16.16.0-chrome105-ff104-edge
+      image: cypress/browsers:node-20.12.0-chrome-123.0.6312.86-1-ff-124.0.2-edge-123.0.2420.65-1
       options: --user 1001
     needs: install
     strategy:
@@ -231,18 +197,18 @@ jobs:
         containers: [1, 2, 3, 4, 5]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download the build folders
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build
 
       - name: "UI Tests - Firefox - Mobile"
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
-          config: "viewportWidth=375,viewportHeight=667"
+          config: '{"e2e":{"viewportWidth":375,"viewportHeight":667}}'
           start: yarn start:ci
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
@@ -251,48 +217,7 @@ jobs:
           parallel: true
           group: "UI - Firefox - Mobile"
           spec: cypress/tests/ui/*
-          config-file: cypress.config.js
-        env:
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # Recommended: pass the GitHub token lets this action correctly
-          # determine the unique run id necessary to re-run the checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ui-windows-tests:
-    timeout-minutes: 40
-    runs-on: windows-2022
-    needs: install-windows
-    strategy:
-      # when one test fails, DO NOT cancel the other
-      # containers, because this will kill Cypress processes
-      # leaving Cypress Cloud hanging ...
-      # https://github.com/cypress-io/github-action/issues/48
-      fail-fast: false
-      matrix:
-        # run copies of the current job in parallel
-        containers: [1, 2, 3, 4, 5]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Download the build folders
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: build
-
-      - name: "UI Tests - Electron - Windows"
-        uses: cypress-io/github-action@v5
-        with:
-          start: yarn start:ci
-          wait-on: "http://localhost:3000"
-          wait-on-timeout: 120
-          record: true
-          parallel: true
-          group: "UI - Electron - Windows"
-          spec: cypress/tests/ui/*
-          config-file: cypress.config.js
+          config-file: cypress.config.ts
         env:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

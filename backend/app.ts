@@ -6,7 +6,7 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import cors from "cors";
 import paginate from "express-paginate";
-import { graphqlHTTP } from "express-graphql";
+import { createHandler as graphqlHandler } from "graphql-http/lib/use/express";
 import { loadSchemaSync } from "@graphql-tools/load";
 import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
 import { addResolversToSchema } from "@graphql-tools/schema";
@@ -15,6 +15,7 @@ import auth from "./auth";
 import userRoutes from "./user-routes";
 import contactRoutes from "./contact-routes";
 import bankAccountRoutes from "./bankaccount-routes";
+import gqlPlaygroundRoutes from "./gql-playground-routes";
 import transactionRoutes from "./transaction-routes";
 import likeRoutes from "./like-routes";
 import commentRoutes from "./comment-routes";
@@ -44,7 +45,7 @@ const schemaWithResolvers = addResolversToSchema({
 const app = express();
 
 /* istanbul ignore next */
-// @ts-ignore
+// @ts-expect-error
 if (global.__coverage__) {
   require("@cypress/code-coverage/middleware/express")(app);
 }
@@ -75,33 +76,35 @@ if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") {
 app.use(auth);
 
 /* istanbul ignore if */
-if (process.env.REACT_APP_AUTH0) {
+if (process.env.VITE_AUTH0) {
   app.use(checkAuth0Jwt);
 }
 
 /* istanbul ignore if */
-if (process.env.REACT_APP_OKTA) {
+if (process.env.VITE_OKTA) {
   app.use(verifyOktaToken);
 }
 
 /* istanbul ignore if */
-if (process.env.REACT_APP_AWS_COGNITO) {
+if (process.env.VITE_AWS_COGNITO) {
   app.use(checkCognitoJwt);
 }
 
 /* istanbul ignore if */
-if (process.env.REACT_APP_GOOGLE) {
+if (process.env.VITE_GOOGLE) {
   app.use(checkGoogleJwt);
 }
 
+app.use("/graphql", gqlPlaygroundRoutes);
 app.use(
   "/graphql",
-  graphqlHTTP({
+  graphqlHandler({
     schema: schemaWithResolvers,
-    graphiql: true,
+    context: async (req, _args) => {
+      return { user: req.raw.user };
+    },
   })
 );
-
 app.use("/users", userRoutes);
 app.use("/contacts", contactRoutes);
 app.use("/bankAccounts", bankAccountRoutes);
@@ -113,4 +116,6 @@ app.use("/bankTransfers", bankTransferRoutes);
 
 app.use(express.static(join(__dirname, "../public")));
 
-getBackendPort().then((port) => app.listen(port));
+getBackendPort().then((port) => {
+  app.listen(port);
+});

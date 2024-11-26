@@ -1,5 +1,8 @@
 <p align="center">
-  <img alt="Cypress Real World App Logo" src="./src/svgs/rwa-logo.svg" />
+  <!-- We use two SVGs here so that this displays correctly
+    on Github. This might not look right in other Markdown previewers. -->
+  <img alt="Cypress Real World App Logo" src="./src/svgs/rwa-logo-light.svg#gh-dark-mode-only" />
+  <img alt="Cypress Real World App Logo" src="./src/svgs/rwa-logo.svg#gh-light-mode-only" />
 </p>
 
 <p align="center">
@@ -66,29 +69,29 @@ The app is bundled with [example data](./data/database.json) (`data/database.jso
 
 This project requires [Node.js](https://nodejs.org/en/) to be installed on your machine. Refer to the [.node-version](./.node-version) file for the exact version.
 
-[Yarn Classic](https://classic.yarnpkg.com/) is also required. Once you have [Node.js](https://nodejs.org/en/) installed, execute the following to install the correct version of `yarn`.
+[Yarn Classic](https://classic.yarnpkg.com/) is also required. Once you have [Node.js](https://nodejs.org/en/) installed, execute the following to install the npm module [yarn](https://www.npmjs.com/package/yarn) (Classic - version 1) globally.
 
-```bash
-npm install yarn -g
+```shell
+npm install yarn@latest -g
 ```
 
-The following command allows you to check that you have Yarn Classic (version 1) installed and active:
+If you have Node.js' experimental [Corepack](https://nodejs.org/dist/latest/docs/api/corepack.html) feature enabled, then you should skip the step `npm install yarn@latest -g` to install Yarn Classic globally. The RWA project is locally configured for `Corepack` to use Yarn Classic (version 1).
 
-```bash
-yarn -v
-```
+#### Yarn Modern
 
 **This project is not compatible with [Yarn Modern](https://yarnpkg.com/) (version 2 and later).**
 
-TypeScript will be added as a local dependency to the project, so no need to install it.
-
 ### Installation
 
+To clone the repo to your local system and install dependencies, execute the following commands:
+
 ```shell
+git clone https://github.com/cypress-io/cypress-realworld-app
+cd cypress-realworld-app
 yarn
 ```
 
-#### Mac M1 chip users will need to prepend `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true`.
+#### Mac users with M-series chips will need to prepend `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true`.
 
 ```shell
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true yarn install
@@ -103,7 +106,7 @@ yarn dev
 > 🚩 **Note**
 >
 > The app will run on port `3000` (frontend) and `3001` (API backend) by default. Please make sure there are no other applications or services running on both ports.
-> If you want to change the default ports, you can do so by modifying `PORT` and `REACT_APP_BACKEND_PORT` variables in `.env` file.
+> If you want to change the default ports, you can do so by modifying `PORT` and `VITE_BACKEND_PORT` variables in `.env` file.
 > However, make sure the modified port numbers in `.env` are not committed into Git since the CI environments still expect the application to run on the default ports.
 
 ### Start Cypress
@@ -114,10 +117,10 @@ yarn cypress:open
 
 > 🚩 **Note**
 >
-> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.config.js`) locally.
-> There are three properties that you need to update in `cypress.config.js`: `e2e.baseUrl`, `env.apiUrl`, and `env.url`.
-> The port number in `e2e.baseUrl` corresponds to `PORT` variable in `.env` file. Similarly, the port number in `env.apiUrl` and `env.url` correspond to `REACT_APP_BACKEND_PORT`.
-> For example, if you have changed `PORT` to `13000` and `REACT_APP_BACKEND_PORT` to `13001` in `.env` file, then your `cypress.config.js` should look similar to the following snippet:
+> If you have changed the default ports, then you need to update Cypress configuration file (`cypress.config.ts`) locally.
+> There are three properties that you need to update in `cypress.config.ts`: `e2e.baseUrl`, `env.apiUrl`, and `env.url`.
+> The port number in `e2e.baseUrl` corresponds to `PORT` variable in `.env` file. Similarly, the port number in `env.apiUrl` and `env.url` correspond to `VITE_BACKEND_PORT`.
+> For example, if you have changed `PORT` to `13000` and `VITE_BACKEND_PORT` to `13001` in `.env` file, then your `cypress.config.ts` should look similar to the following snippet:
 >
 > ```js
 > {
@@ -133,15 +136,16 @@ yarn cypress:open
 > }
 > ```
 >
-> Avoid committing the modified `cypress.config.js` into Git since the CI environments still expect the application to be run on default ports.
+> Avoid committing the modified `cypress.config.ts` into Git since the CI environments still expect the application to be run on default ports.
 
 ## Tests
 
-| Type | Location                                 |
-| ---- | ---------------------------------------- |
-| api  | [cypress/tests/api](./cypress/tests/api) |
-| ui   | [cypress/tests/ui](./cypress/tests/ui)   |
-| unit | [`src/__tests__`](./src/__tests__)       |
+| Type      | Location                                 |
+| --------- | ---------------------------------------- |
+| api       | [cypress/tests/api](./cypress/tests/api) |
+| ui        | [cypress/tests/ui](./cypress/tests/ui)   |
+| component | [src/(next to component)](./src)         |
+| unit      | [`src/__tests__`](./src/__tests__)       |
 
 ## Database
 
@@ -160,6 +164,7 @@ yarn cypress:open
 | Script         | Description                                                                                                                                                                       |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | dev            | Starts backend in watch mode and frontend                                                                                                                                         |
+| dev:coverage   | Starts backend in watch mode and frontend with instrumented code coverage enabled                                                                                                 |
 | dev:auth0      | Starts backend in watch mode and frontend; [Uses Auth0 for Authentication](#auth0) > [Read Guide](http://on.cypress.io/auth0)                                                     |
 | dev:okta       | Starts backend in watch mode and frontend; [Uses Okta for Authentication](#okta) > [Read Guide](http://on.cypress.io/okta)                                                        |
 | dev:cognito    | Starts backend in watch mode and frontend; [Uses Cognito for Authentication](#amazon-cognito) > [Read Guide](http://on.cypress.io/amazon-cognito)                                 |
@@ -179,12 +184,20 @@ The Cypress Real-World App uses the [@cypress/code-coverage](https://github.com/
 
 To generate a code coverage report:
 
-1. Run `yarn cypress:run --env coverage=true` and wait for the test run to complete.
-2. Once the test run is complete, you can view the report at `coverage/index.html`.
+1. Start the development server with coverage enabled by running `yarn dev:coverage`.
+2. Run `yarn cypress:run --env coverage=true` and wait for the test run to complete.
+3. Once the test run is complete, you can view the report at `coverage/index.html`.
 
 ## 3rd Party Authentication Providers
 
-Support for 3rd party authentication is available in the application to demonstrate the concept and commands needed for programmatic login.
+Support for 3rd party authentication is available in the application to demonstrate the concepts on logging in with a 3rd party provider.
+
+The app contains different entry points for each provider. There is a separate **index** file for each provider, and to use one, you must replace the current **index.tsx** file with the desired one. The following providers are supported:
+
+- [Auth0](#auth0) (index.auth0.tsx)
+- [Okta](#okta) (index.okta.tsx)
+- [Amazon Cognito](#amazon-cognito) (index.cognito.tsx)
+- [Google](#google) (index.google.tsx)
 
 ### Auth0
 
@@ -192,7 +205,7 @@ The [Auth0](https://auth0.com/) tests have been rewritten to take advantage of o
 
 Prerequisites include an Auth0 account and a Tenant configured for use with a SPA. Environment variables from Auth0 are to be placed in the [.env](./.env). For more details see [Auth0 Application Setup](http://on.cypress.io/auth0#Auth0-Application-Setup) and [Setting Auth0 app credentials in Cypress](http://on.cypress.io/auth0#Setting-Auth0-app-credentials-in-Cypress).
 
-Start the application with `yarn dev:auth0` and run Cypress with `yarn cypress:open`.
+To start the application with Auth0, replace the current **src/index.tsx** file with the **src/index.auth0.tsx** file and start the application with `yarn dev:auth0` and run Cypress with `yarn cypress:open`.
 
 The only passing spec on this branch will be the [auth0 spec](./cypress/tests/ui-auth-providers/auth0.spec.ts); all others will fail. Please note that your test user will need to authorize your Auth0 app before the tests will pass.
 
@@ -202,7 +215,7 @@ A [guide has been written with detail around adapting the RWA](http://on.cypress
 
 Prerequisites include an [Okta][okta] account and [application configured for use with a SPA][oktacreateapp]. Environment variables from [Okta][okta] are to be placed in the [.env](./.env).
 
-Start the application with `yarn dev:okta` and run Cypress with `yarn cypress:open`.
+To start the application with Okta, replace the current **src/index.tsx** file with the **src/index.okta.tsx** file and start the application with `yarn dev:okta` and run Cypress with `yarn cypress:open`.
 
 The **only passing spec on this branch** will be the [okta spec](./cypress/tests/ui-auth-providers/okta.spec.ts); all others will fail.
 
@@ -212,7 +225,26 @@ A [guide has been written with detail around adapting the RWA](http://on.cypress
 
 Prerequisites include an [Amazon Cognito][cognito] account. Environment variables from [Amazon Cognito][cognito] are provided by the [AWS Amplify CLI][awsamplify].
 
-Start the application with `yarn dev:cognito` and run Cypress with `yarn cypress:open`.
+- A user pool is required (identity pool is not used here)
+  - The user pool must have a hosted UI domain configured, which must:
+    - allow callback and sign-out URLs of `http://localhost:3000/`,
+    - allow implicit grant Oauth grant type,
+    - allow these OpenID Connect scopes:
+      - aws.cognito.signin.user.admin
+      - email
+      - openid
+  - The user pool must have an app client configured, with:
+    - enabled auth flow `ALLOW_USER_PASSWORD_AUTH`, only for programmatic login flavor of test.
+    - The `cy.origin()` flavor of test only requires auth flow `ALLOW_USER_SRP_AUTH`, and does not require `ALLOW_USER_PASSWORD_AUTH`.
+  - The user pool must have a user corresponding to the `AWS_COGNITO` env vars mentioned below, and the user's Confirmation Status must be `Confirmed`. If it is `Force Reset Password`, then use a browser to log in once at `http://localhost:3000` while `yarn dev:cognito` is running to reset their password.
+
+The test knobs are in a few places:
+
+- The `.env` file has `VITE_AUTH_TOKEN_NAME` and vars beginning `AWS_COGNITO`. Be careful not to commit any secrets.
+- Both `scripts/mock-aws-exports.js` and `scripts/mock-aws-exports-es5.js` must have the same data; only their export statements differ. These files can be edited manually or exported from the amplify CLI.
+- `cypress.config.ts` has `cognito_programmatic_login` to control flavor of the test.
+
+To start the application with Cognito, replace the current **src/index.tsx** file with the **src/index.cognito.tsx** file and start the application with `yarn dev:cognito` and run Cypress with `yarn cypress:open`. `yarn dev` may need to have been run once first.
 
 The **only passing spec on this branch** will be the [cognito spec](./cypress/tests/ui-auth-providers/cognito.spec.ts); all others will fail.
 
@@ -222,7 +254,7 @@ A [guide has been written with detail around adapting the RWA](https://docs.cypr
 
 Prerequisites include an [Google][google] account. Environment variables from [Google][google] are to be placed in the [.env](./.env).
 
-Start the application with `yarn dev:google` and run Cypress with `yarn cypress:open`.
+To start the application with Google, replace the current **src/index.tsx** file with the **src/index.google.tsx** file and start the application with `yarn dev:google` and run Cypress with `yarn cypress:open`.
 
 The **only passing spec** when run with `yarn dev:google` will be the [google spec](./cypress/tests/ui-auth-providers/google.spec.ts); all others will fail.
 

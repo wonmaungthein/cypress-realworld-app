@@ -16,6 +16,11 @@ type TestBankAccountsCtx = {
 describe("Bank Accounts API", function () {
   let ctx: TestBankAccountsCtx = {};
 
+  before(() => {
+    // Hacky workaround to have the e2e tests pass when cy.visit('http://localhost:3000') is called
+    cy.request("GET", "/");
+  });
+
   beforeEach(function () {
     cy.task("db:seed");
 
@@ -96,6 +101,7 @@ describe("Bank Accounts API", function () {
           }`,
       }).then((response) => {
         expect(response.status).to.eq(200);
+        expect(JSON.stringify(response.body.errors || "notThere")).to.eq('"notThere"');
         expect(response.body.data.listBankAccount[0].userId).to.eq(userId);
       });
     });

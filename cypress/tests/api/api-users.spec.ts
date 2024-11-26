@@ -11,6 +11,11 @@ type TestUserCtx = {
 describe("Users API", function () {
   let ctx: TestUserCtx = {};
 
+  before(() => {
+    // Hacky workaround to have the e2e tests pass when cy.visit('http://localhost:3000') is called
+    cy.request("GET", "/");
+  });
+
   beforeEach(function () {
     cy.task("db:seed");
 
@@ -127,6 +132,25 @@ describe("Users API", function () {
       }).then((response) => {
         expect(response.status).to.eq(201);
         expect(response.body.user).to.contain({ firstName });
+      });
+    });
+
+    it("creates a new user with an account balance in cents", function () {
+      const firstName = faker.name.firstName();
+
+      cy.request("POST", `${apiUsers}`, {
+        firstName,
+        lastName: faker.name.lastName(),
+        username: faker.internet.userName(),
+        password: faker.internet.password(),
+        email: faker.internet.email(),
+        phoneNumber: faker.phone.phoneNumber(),
+        avatar: faker.internet.avatar(),
+        balance: 100_00,
+      }).then((response) => {
+        expect(response.status).to.eq(201);
+        expect(response.body.user).to.contain({ firstName });
+        expect(response.body.user.balance).to.equal(100_00);
       });
     });
 

@@ -1,8 +1,8 @@
 /* istanbul ignore next */
 import React, { useEffect } from "react";
+import { styled } from "@mui/material/styles";
 import { useActor, useMachine } from "@xstate/react";
-import { makeStyles } from "@material-ui/core/styles";
-import { CssBaseline } from "@material-ui/core";
+import { CssBaseline } from "@mui/material";
 // @ts-ignore
 import { LoginCallback, SecureRoute, useOktaAuth, withOktaAuth } from "@okta/okta-react";
 import { Route } from "react-router-dom";
@@ -14,6 +14,18 @@ import AlertBar from "../components/AlertBar";
 import { bankAccountsMachine } from "../machines/bankAccountsMachine";
 import PrivateRoutesContainer from "./PrivateRoutesContainer";
 
+const PREFIX = "appOkta";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`&.${classes.root}`]: {
+    display: "flex",
+  },
+}));
+
 // @ts-ignore
 if (window.Cypress) {
   // Expose authService on window for Cypress
@@ -21,16 +33,10 @@ if (window.Cypress) {
   window.authService = authService;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-}));
-
 /* istanbul ignore next */
 const AppOkta: React.FC = () => {
   const { authState: oktaAuthState, oktaAuth: oktaAuthService } = useOktaAuth();
-  const classes = useStyles();
+
   const [authState] = useActor(authService);
   const [, , notificationsService] = useMachine(notificationsMachine);
 
@@ -39,7 +45,7 @@ const AppOkta: React.FC = () => {
   const [, , bankAccountsService] = useMachine(bankAccountsMachine);
 
   // @ts-ignore
-  if (window.Cypress && process.env.REACT_APP_OKTA_PROGRAMMATIC) {
+  if (window.Cypress && process.env.VITE_OKTA_PROGRAMMATIC) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
       const okta = JSON.parse(localStorage.getItem("oktaCypress")!);
@@ -65,7 +71,7 @@ const AppOkta: React.FC = () => {
     authState.matches("updating");
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <CssBaseline />
 
       {isLoggedIn && (
@@ -85,11 +91,11 @@ const AppOkta: React.FC = () => {
       )}
 
       <AlertBar snackbarService={snackbarService} />
-    </div>
+    </Root>
   );
 };
 
 let appOkta =
   //@ts-ignore
-  window.Cypress && process.env.REACT_APP_OKTA_PROGRAMMATIC ? AppOkta : withOktaAuth(AppOkta);
+  window.Cypress && process.env.VITE_OKTA_PROGRAMMATIC ? AppOkta : withOktaAuth(AppOkta);
 export default appOkta;

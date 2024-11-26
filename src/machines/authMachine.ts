@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { Machine, assign, interpret, State } from "xstate";
 import { omit } from "lodash/fp";
 import { httpClient } from "../utils/asyncUtils";
@@ -6,7 +5,6 @@ import { history } from "../utils/historyUtils";
 import { User } from "../models";
 import { backendPort } from "../utils/portUtils";
 
-dotenv.config();
 export interface AuthMachineSchema {
   states: {
     unauthorized: {};
@@ -177,7 +175,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         };
 
         // Set Access Token in Local Storage for API calls
-        localStorage.setItem(process.env.REACT_APP_AUTH_TOKEN_NAME!, event.token);
+        localStorage.setItem(process.env.VITE_AUTH_TOKEN_NAME!, event.token);
 
         return Promise.resolve({ user });
       },
@@ -196,7 +194,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         };
 
         // Set Google Access Token in Local Storage for API calls
-        localStorage.setItem(process.env.REACT_APP_AUTH_TOKEN_NAME!, event.token);
+        localStorage.setItem(process.env.VITE_AUTH_TOKEN_NAME!, event.token);
 
         return Promise.resolve({ user });
       },
@@ -210,7 +208,7 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
         };
 
         // Set Auth0 Access Token in Local Storage for API calls
-        localStorage.setItem(process.env.REACT_APP_AUTH_TOKEN_NAME!, event.token);
+        localStorage.setItem(process.env.VITE_AUTH_TOKEN_NAME!, event.token);
 
         return Promise.resolve({ user });
       },
@@ -229,15 +227,12 @@ export const authMachine = Machine<AuthMachineContext, AuthMachineSchema, AuthMa
       getCognitoUserProfile: /* istanbul ignore next */ (ctx, event: any) => {
         // Map Cognito User fields to our User Model
         const ourUser = {
-          id: event.user.sub,
-          email: event.user.email,
+          id: event.userSub,
+          email: event.email,
         };
 
         // Set Access Token in Local Storage for API calls
-        localStorage.setItem(
-          process.env.REACT_APP_AUTH_TOKEN_NAME!,
-          event.user.signInUserSession.accessToken.jwtToken
-        );
+        localStorage.setItem(process.env.VITE_AUTH_TOKEN_NAME!, event.accessTokenJwtString);
 
         return Promise.resolve(ourUser);
       },

@@ -17,22 +17,22 @@ const auth0JwtConfig = {
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.REACT_APP_AUTH0_DOMAIN}/.well-known/jwks.json`,
+    jwksUri: `https://${process.env.VITE_AUTH0_DOMAIN}/.well-known/jwks.json`,
   }),
 
   // Validate the audience and the issuer.
-  audience: process.env.REACT_APP_AUTH0_AUDIENCE,
-  issuer: `https://${process.env.REACT_APP_AUTH0_DOMAIN}/`,
+  audience: process.env.VITE_AUTH0_AUDIENCE,
+  issuer: `https://${process.env.VITE_AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
 };
 
 // Okta Validate the JWT Signature
 const oktaJwtVerifier = new OktaJwtVerifier({
-  issuer: `https://${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default`,
-  clientId: process.env.REACT_APP_OKTA_CLIENTID,
+  issuer: `https://${process.env.VITE_OKTA_DOMAIN}/oauth2/default`,
+  clientId: process.env.VITE_OKTA_CLIENTID,
   assertClaims: {
     aud: "api://default",
-    cid: process.env.REACT_APP_OKTA_CLIENTID,
+    cid: process.env.VITE_OKTA_CLIENTID,
   },
 });
 const googleJwtConfig = {
@@ -44,7 +44,7 @@ const googleJwtConfig = {
   }),
 
   // Validate the audience and the issuer.
-  audience: process.env.REACT_APP_GOOGLE_CLIENTID,
+  audience: process.env.VITE_GOOGLE_CLIENTID,
   issuer: "accounts.google.com",
   algorithms: ["RS256"],
 };
@@ -80,12 +80,14 @@ export const verifyOktaToken = (req: Request, res: Response, next: NextFunction)
 
 // Amazon Cognito Validate the JWT Signature
 // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html#amazon-cognito-user-pools-using-tokens-step-2
+const userPoolId = awsConfig.Auth.Cognito.userPoolId;
+const region = userPoolId.split("_")[0];
 const awsCognitoJwtConfig = {
   secret: jwksRsa.expressJwtSecret({
-    jwksUri: `https://cognito-idp.${awsConfig.aws_cognito_region}.amazonaws.com/${awsConfig.aws_user_pools_id}/.well-known/jwks.json`,
+    jwksUri: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`,
   }),
 
-  issuer: `https://cognito-idp.${awsConfig.aws_cognito_region}.amazonaws.com/${awsConfig.aws_user_pools_id}`,
+  issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
   algorithms: ["RS256"],
 };
 
