@@ -3,12 +3,12 @@
     {
       "id": "uBmeaz5pX",
       "uuid": "3b63b436-cacc-457a-a3e8-c962ef9838ac",
-      "firstName": "Ted",
-      "lastName": "Parisian",
+      "firstName": "New First Name",
+      "lastName": "New Last Name",
       "username": "Heath93",
       "password": "$2a$10$nSaCsTPTtbbPTnFXBH0GZu0ExpNMud3d1IuKOC/6a9gwAHkdhppeu",
-      "email": "Santos.Runte65@gmail.com",
-      "phoneNumber": "398-225-9900",
+      "email": "email@email.com",
+      "phoneNumber": "6155551212",
       "avatar": "https://avatars.dicebear.com/api/human/uBmeaz5pX.svg",
       "defaultPrivacyLevel": "public",
       "balance": 150953,
@@ -200,17 +200,6 @@
   ],
   "bankaccounts": [
     {
-<<<<<<< HEAD
-      "id": "RskoB7r4Bic",
-      "uuid": "a45f1803-b845-42aa-9142-f5f80ea09416",
-      "userId": "t45AiwidW",
-      "bankName": "O'Hara - Labadie Bank",
-      "accountNumber": "6123387981",
-      "routingNumber": "851823229",
-      "isDeleted": true,
-      "createdAt": "2020-05-09T07:57:26.947Z",
-      "modifiedAt": "2020-05-21T22:18:50.916Z"
-=======
       "id": "pgl34JtnfhX",
       "uuid": "0939b3fe-02da-46f4-a3a6-f06f0fc49f75",
       "userId": "uBmeaz5pX",
@@ -220,7 +209,6 @@
       "isDeleted": false,
       "createdAt": "2023-03-28T21:55:07.857Z",
       "modifiedAt": "2024-03-07T20:50:34.541Z"
->>>>>>> 7f3aa7e2fe014ddb853057b66b9dc682c7bdf246
     },
     {
       "id": "I8qfnpz9q4a",
@@ -263,13 +251,8 @@
       "accountNumber": "7971253935",
       "routingNumber": "845445036",
       "isDeleted": false,
-<<<<<<< HEAD
-      "createdAt": "2019-09-30T14:20:07.043Z",
-      "modifiedAt": "2020-05-21T22:40:28.910Z"
-=======
       "createdAt": "2024-01-26T14:01:01.815Z",
       "modifiedAt": "2024-03-07T08:44:31.174Z"
->>>>>>> 7f3aa7e2fe014ddb853057b66b9dc682c7bdf246
     }
   ],
   "transactions": [
