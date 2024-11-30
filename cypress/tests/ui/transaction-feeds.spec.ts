@@ -102,6 +102,14 @@ describe("Transaction Feed", function () {
       cy.wait("@mockedPublicTransactions")
         .its("response.body.results")
         .then((transactions) => {
+          cy.log("<==========>");
+          cy.log("<==========>");
+          cy.log("<==========>");
+          cy.log(JSON.stringify(transactions));
+          cy.log("<==========>");
+          cy.log("<==========>");
+          cy.log("<==========>");
+
           const getTransactionFromEl = ($el: JQuery<Element>): TransactionResponseItem => {
             const transactionId = $el.data("test").split("transaction-item-")[1];
             return _.find(transactions, (transaction) => {
